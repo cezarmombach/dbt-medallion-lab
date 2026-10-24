@@ -1,0 +1,26 @@
+version: 2
+
+sources:
+  - name: crm
+    description: >
+      Raw Salesforce-like CRM export, loaded as-is by the ingestion tool.
+      All columns are text; casting happens in staging.
+    meta:
+      external_location: "read_csv('data/raw/{name}.csv', all_varchar=true)"
+    config:
+      loaded_at_field: "cast(_synced_at as timestamp)"
+      freshness:
+        warn_after: {count: 2, period: day}
+        error_after: {count: 5, period: day}
+    tables:
+      - name: sf_user
+        description: CRM users (deal owners). No _synced_at column, so no freshness check.
+        config:
+          freshness: null
+          loaded_at_field: null
+      - name: sf_account
+        description: Companies (Salesforce Account). May contain duplicate ids, soft deletes and near-duplicate names.
+      - name: sf_contact
+        description: People (Salesforce Contact). account_id can be NULL (valid). Synced about 2 days behind the other tables.
+      - name: sf_opportunity
+        description: Deals (Salesforce Opportunity). May contain orphan account_id and dirty amounts.
