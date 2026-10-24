@@ -1,1 +1,2 @@
 dbt-duckdb==1.11.0
+faker==40.43.0
