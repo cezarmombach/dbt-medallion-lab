@@ -26,6 +26,11 @@ Short definitions of the terms used in this project. Updated at the end of each 
 | Freshness | A check that a source was loaded recently enough |
 | Lineage | The dependency graph between sources and models |
 | Macro | Reusable Jinja code, like a function for SQL |
+| Seed | A small CSV versioned in the repo (`seeds/`) that `dbt seed` loads as a table; used for mappings |
+| Var | A project-level variable (`vars:` in `dbt_project.yml`) read in SQL with `var()` |
+| Severity | How a failing test is reported: `error` fails the build, `warn` only reports |
+| Generic vs. singular test | Generic = reusable, declared in YAML (`unique`). Singular = a one-off `.sql` in `tests/` returning bad rows |
+| `try_cast` | A cast that returns `NULL` instead of failing when the value cannot be converted |
 
 ## Data engineering
 | Term | Meaning |
@@ -41,3 +46,23 @@ Short definitions of the terms used in this project. Updated at the end of each 
 | Deduplication | Keeping one row per key, typically the latest (`row_number()` + `qualify`) |
 | Fan-out | A join that multiplies rows (usually from duplicate keys) and inflates sums |
 | Entity resolution | Deciding that different records refer to the same real-world entity |
+| Grain | What one row of a table represents (e.g. "one live account per id"). Every model must state it |
+| Resurrection (anti-pattern) | Filtering soft deletes *before* dedup, which lets an older live copy of a deleted id survive |
+| Placeholder | A fake value standing for "no value": `N/A`, `null`, `unknown`, `-`, `""`. Turned into a real `NULL` in staging |
+| Normalized key | A technical version of a value used only for matching: lowercase, no spaces or punctuation (`Closed - Won` -> `closedwon`) |
+| Mapping table | A lookup that translates every known variant of a value to one canonical value (here, a dbt seed) |
+| Canonical value | The single official form of a value (`Closed Won`, ISO-2 country `US`) |
+| Audit column (`_raw`) | A column keeping the original value next to the cleaned one, so a cleaning rule can be checked or redone |
+| Flag | A boolean column (`is_...`, `has_...`) that marks a problem without removing the row |
+| Mojibake | Garbled text from reading bytes with the wrong encoding: UTF-8 read as Latin-1 turns `São` into `SÃ£o` |
+| Test record | A row created to test the CRM (`Test Account`, `asdf`, `@example.com`), not real business data |
+| ISO 3166-1 alpha-2 | The standard 2-letter country codes (`US`, `GB`, `BR`) |
+| E.164 | The international phone format `+<country code><number>` (e.g. `+14155550199`) |
+
+## Spec-Driven Development
+| Term | Meaning |
+|---|---|
+| Spec-Driven Development (SDD) | Writing and agreeing on a specification (what and how to verify) before writing code |
+| Spec | A document with goal, decisions, rules, acceptance criteria, expected tests and out-of-scope items |
+| Acceptance criterion | A verifiable statement that must be true when the work is done (e.g. "`stg_crm__account` has one row per id") |
+| Out of scope | What the spec explicitly does not cover, so nobody assumes it was done |
